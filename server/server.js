@@ -19,6 +19,12 @@ const allowOrigins = [
   'https://chat-app-beta-drab.vercel.app', //production
 ];
 
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
+
 // Controllers
 const { handleUserJoin, handleDisconnect } = require('./controllers/userController');
 const { handleMessage } = require('./controllers/messageController');
