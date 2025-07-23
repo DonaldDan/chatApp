@@ -73,3 +73,7 @@ Start Frontend
         cd client
         npm install
         npm run dev    # Runs Vite dev server
+
+
+URL of the deployed frontend application
+https://chat-app-beta-drab.vercel.app/
