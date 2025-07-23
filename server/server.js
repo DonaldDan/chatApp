@@ -14,6 +14,11 @@ dotenv.config();
 const connectDB = require('./config/db');
 connectDB();
 
+const allowOrigins = [
+  'http://localhost:5173', // Local development
+  'https://chat-app-beta-drab.vercel.app', //production
+];
+
 // Controllers
 const { handleUserJoin, handleDisconnect } = require('./controllers/userController');
 const { handleMessage } = require('./controllers/messageController');
