@@ -7,45 +7,47 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Load environment variables
+// Load environment variables from .env
 dotenv.config();
 
 // MongoDB connection
 const connectDB = require('./config/db');
 connectDB();
 
-const allowOrigins = [
-  'http://localhost:5173', // Local development
-  'https://chat-app-beta-drab.vercel.app', //production
+// Allowed CORS origins
+const allowedOrigins = [
+  'http://localhost:5173', // local dev
+  'https://chat-app-beta-drab.vercel.app', // deployed frontend on Vercel
 ];
 
+// Express app setup
+const app = express();
+
+// CORS middleware for Express
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
 
+// Other middlewares
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Controllers
-const { handleUserJoin, handleDisconnect } = require('./controllers/userController');
-const { handleMessage } = require('./controllers/messageController');
-
-// Express setup
-const app = express();
+// Create HTTP server and Socket.IO instance
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.VITE_CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// Controllers
+const { handleUserJoin, handleDisconnect } = require('./controllers/userController');
+const { handleMessage, getRecentMessages } = require('./controllers/messageController');
 
-// Socket.io events
+// Socket.IO logic
 io.on('connection', (socket) => {
   console.log(`✅ Socket connected: ${socket.id}`);
 
@@ -77,16 +79,15 @@ io.on('connection', (socket) => {
   });
 });
 
-// Routes
-const { getRecentMessages } = require('./controllers/messageController');
+// API routes
 app.get('/api/messages', getRecentMessages);
 
-// Health check route
+// Health check
 app.get('/', (req, res) => {
   res.send('✅ Chat Server is running with MongoDB');
 });
 
-// Start server
+// Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
